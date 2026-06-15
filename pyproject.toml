@@ -26,6 +26,7 @@ select = [
 ignore = [
     "E501",   # 行长由 formatter 处理
     "B008",   # FastAPI Depends() 在默认参数中是惯用写法
+    "RUF006", # FastAPI lifespan 中 create_task 存于 app.state
 ]
 
 [tool.ruff.lint.isort]

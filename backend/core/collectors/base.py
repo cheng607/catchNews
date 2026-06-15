@@ -19,5 +19,4 @@ class BaseCollector(ABC):
     default_top_n: int = 20
 
     @abstractmethod
-    async def fetch(self) -> list[RawItem]:
-        ...
+    async def fetch(self) -> list[RawItem]: ...

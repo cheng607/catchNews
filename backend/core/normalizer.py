@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from core.collectors.base import RawItem
 from core.schemas.hot_item import HotItemSchema
@@ -6,7 +6,7 @@ from core.schemas.hot_item import HotItemSchema
 
 def normalize(raw: RawItem, platform: str, track: str, source_label: str) -> HotItemSchema:
     """将采集器 RawItem 映射为统一 HotItemSchema。"""
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     item_id = f"{platform}:{raw.platform_item_id}"
 
     return HotItemSchema(

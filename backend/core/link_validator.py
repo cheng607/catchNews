@@ -13,7 +13,17 @@ ALLOWED_HOSTS = {
     "producthunt.com",
     "bilibili.com",
     "www.bilibili.com",
+    "36kr.com",
+    "www.36kr.com",
+    "huxiu.com",
+    "www.huxiu.com",
 }
+
+
+def _host_matches_allowed(host: str, allowed: str) -> bool:
+    host = host.lower()
+    allowed = allowed.lower()
+    return host == allowed or host.endswith(f".{allowed}")
 
 
 def is_allowed_url(url: str) -> bool:
@@ -24,4 +34,4 @@ def is_allowed_url(url: str) -> bool:
     if not host:
         return False
     host = host.lower()
-    return host in ALLOWED_HOSTS or any(host.endswith(f".{h}") for h in ALLOWED_HOSTS if "." not in h)
+    return any(_host_matches_allowed(host, allowed) for allowed in ALLOWED_HOSTS)

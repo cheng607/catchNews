@@ -9,6 +9,8 @@ COPY core/ ./core/
 COPY personal/ ./personal/
 RUN mkdir -p personal/data personal/cache
 
+WORKDIR /backend/personal
+
 ENV PYTHONPATH=/backend/personal:/backend
 EXPOSE 8000
 
