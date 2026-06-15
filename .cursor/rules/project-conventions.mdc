@@ -152,36 +152,36 @@ catchNews/
 
 ### 5.1 分支策略
 
-| 分支 | 用途 |
-|------|------|
-| `main` | 稳定版本，可随时部署 |
-| `dev` | 日常开发集成 |
-| `feature/xxx` | 功能分支，从 dev 拉出 |
-| `fix/xxx` | 修复分支 |
+| 分支 | 命名示例 | 来源 → 目标 | 说明 |
+|------|----------|-------------|------|
+| `main` | — | — | 稳定版本，仅通过 dev 合入 |
+| `dev` | — | `main` → `main` | 日常开发集成 |
+| `feature/xxx` | `feature/M0-github-collector` | `dev` → `dev` | 功能分支，建议用里程碑前缀 |
+| `fix/xxx` | `fix/weibo-parse-error` | `dev` → `dev` | 缺陷修复 |
+| `hotfix/xxx` | `hotfix/link-crash` | `main` → `main` + `dev` | 线上紧急修复 |
 
-### 5.2 Commit 消息
+### 5.2 Commit 消息（中文）
 
-格式：`<type>(<scope>): <subject>`
+格式：`<类型>: <中文简要描述>`
 
-type 可选值：
-- `feat` — 新功能
-- `fix` — 修复
-- `refactor` — 重构
-- `docs` — 文档
-- `test` — 测试
-- `chore` — 构建/工具/依赖
-- `style` — 格式（不影响逻辑）
-
-scope 可选值：`collector`、`api`、`model`、`frontend`、`config`、`docker`
+- **类型**：英文（`feat` / `fix` / `refactor` / `docs` / `test` / `chore` / `style` / `perf`）
+- **中文简要描述**：必填，用中文概括变更，一行即可
 
 示例：
 ```
-feat(collector): 实现百度热搜采集器
-fix(api): 修复 hot-items 分页参数缺失
-chore(docker): 优化 backend 镜像体积
+feat: 实现百度热搜采集
+fix: 修复 track=all 时返回空列表
+test: 添加 GitHub Trending mock 测试
+chore: 优化后端镜像体积
+docs: 补充本地启动说明
+refactor: 抽取 BaseCollector 公共方法
 ```
 
-### 5.3 .gitignore 要点
+### 5.3 Tag 版本号
+
+格式：`v<主版本>.<里程碑>.<补丁>`，如 `v0.1.0`（M0）、`v0.2.0`（M1）、`v1.0.0`（正式发布）。
+
+### 5.4 .gitignore 要点
 
 - 环境文件 `.env` / `.env.local` 不入库
 - `backend/personal/data/*.db` 运行时数据不入库

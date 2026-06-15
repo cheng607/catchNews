@@ -43,6 +43,13 @@ export default function HomePage() {
     void load();
   }, [load]);
 
+  useEffect(() => {
+    const ms = Number(process.env.NEXT_PUBLIC_AUTO_REFRESH_MS);
+    if (!ms || ms < 10_000) return;
+    const id = setInterval(() => void load(), ms);
+    return () => clearInterval(id);
+  }, [load]);
+
   const entertainmentItems = useMemo(
     () => items.filter((i) => i.track === 'entertainment'),
     [items],
