@@ -54,6 +54,7 @@ def list_hot_items(
     top_n: int = 20,
     q: str | None = None,
     include_broken: bool = False,
+    time_range: str = "realtime",
 ) -> HotItemsResponse:
     stmt = select(HotItem).where(HotItem.is_active.is_(True))
     track_value = TRACK_MAP.get(track, track)
@@ -70,6 +71,20 @@ def list_hot_items(
     items = db.execute(stmt).scalars().all()
 
     schemas = [_to_schema(item, _source_label(item.platform)) for item in items]
+
+    if time_range == "realtime":
+        schemas = [
+            s
+            for s in schemas
+            if s.platform != "github" or s.metrics.get("since") == "daily"
+        ]
+    elif time_range == "week":
+        schemas = [
+            s
+            for s in schemas
+            if s.platform != "github" or s.metrics.get("since") == "weekly"
+        ]
+
     if q:
         keyword = q.lower()
         schemas = [s for s in schemas if keyword in s.title.lower()]

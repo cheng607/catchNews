@@ -28,8 +28,8 @@ async def fetch_repo_stars(
     repo: str,
     *,
     token: str = "",
-) -> dict[str, int] | None:
-    """调用 GitHub REST API 获取仓库 Star/Fork/Issue 指标。"""
+) -> dict[str, int | str] | None:
+    """调用 GitHub REST API 获取仓库 Star/Fork/Issue 指标与简介。"""
     url = f"https://api.github.com/repos/{owner}/{repo}"
     headers = {
         "Accept": "application/vnd.github+json",
@@ -49,8 +49,12 @@ async def fetch_repo_stars(
         logger.warning("GitHub API failed for %s/%s: %s", owner, repo, exc)
         return None
 
-    return {
+    result: dict[str, int | str] = {
         "stars": int(data.get("stargazers_count", 0)),
         "forks": int(data.get("forks_count", 0)),
         "open_issues": int(data.get("open_issues_count", 0)),
     }
+    description = (data.get("description") or "").strip()
+    if description:
+        result["description"] = description
+    return result

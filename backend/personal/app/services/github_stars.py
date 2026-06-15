@@ -7,5 +7,5 @@ from core.collectors.github_stars import parse_github_repo
 __all__ = ["fetch_repo_stars", "parse_github_repo"]
 
 
-async def fetch_repo_stars(owner: str, repo: str) -> dict[str, int] | None:
+async def fetch_repo_stars(owner: str, repo: str) -> dict[str, int | str] | None:
     return await _core_fetch(owner, repo, token=settings.github_token)

@@ -33,11 +33,13 @@ export async function fetchHotItems(params: {
   track?: string;
   q?: string;
   top_n?: number;
+  time_range?: 'realtime' | 'week' | 'all';
 }): Promise<HotItemsResponse> {
   const search = new URLSearchParams();
   if (params.track) search.set('track', params.track);
   if (params.q) search.set('q', params.q);
   if (params.top_n) search.set('top_n', String(params.top_n));
+  if (params.time_range) search.set('time_range', params.time_range);
 
   const res = await fetch(`${API_BASE}/hot-items?${search.toString()}`, {
     next: { revalidate: 60 },

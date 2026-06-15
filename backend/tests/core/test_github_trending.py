@@ -14,7 +14,9 @@ SAMPLE_HTML = """
   <h2 class="h3 lh-condensed">
     <a href="/anthropics/claude-code">anthropics / claude-code</a>
   </h2>
+  <p class="col-9 color-fg-muted my-1 pr-4">AI-powered coding assistant for developers</p>
   <span itemprop="programmingLanguage">TypeScript</span>
+  <span class="d-inline-block float-sm-right">892 stars today</span>
   <a class="Link Link--muted Link--secondary d-inline-block" href="/anthropics/claude-code/stargazers">
     <svg class="octicon-star"></svg>
     12,345
@@ -50,6 +52,8 @@ class TestParseRepo:
         assert item.url == "https://github.com/anthropics/claude-code"
         assert item.metrics.get("stars") == 12345
         assert item.metrics.get("language") == "TypeScript"
+        assert item.metrics.get("description") == "AI-powered coding assistant for developers"
+        assert item.metrics.get("stars_today") == 892
         assert item.metrics.get("since") == "daily"
         assert item.rank == 1
 

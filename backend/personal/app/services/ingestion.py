@@ -87,7 +87,12 @@ async def _ingest_collector(db: Session, collector: BaseCollector) -> int:
             metrics = dict(normalized.metrics)
             if platform == "github" and stars_total:
                 metrics["stars"] = stars_total
-                metrics["stars_today"] = max(stars_delta, 0) if stars_prev else 0
+                if raw.metrics.get("stars_today") is not None:
+                    metrics["stars_today"] = int(raw.metrics["stars_today"])
+                elif raw.metrics.get("stars_this_week") is not None:
+                    metrics["stars_this_week"] = int(raw.metrics["stars_this_week"])
+                elif stars_prev:
+                    metrics["stars_today"] = max(stars_delta, 0)
                 if existing and isinstance(existing.metrics, dict):
                     metrics["stars_delta_7d"] = existing.metrics.get("stars_delta_7d", 0)
             if rank_change is not None:

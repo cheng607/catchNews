@@ -28,7 +28,8 @@ export default function HomePage() {
       const data = await fetchHotItems({
         track: TRACK_MAP[trackTab],
         q: query || undefined,
-        top_n: 20,
+        top_n: 40,
+        time_range: 'all',
       });
       setItems(data.items);
       setUpdatedAt(data.meta.updated_at);
@@ -55,6 +56,14 @@ export default function HomePage() {
     [items],
   );
   const techItems = useMemo(() => items.filter((i) => i.track === 'tech'), [items]);
+  const githubDailyItems = useMemo(
+    () => techItems.filter((i) => i.metrics.since === 'daily').slice(0, 20),
+    [techItems],
+  );
+  const githubWeeklyItems = useMemo(
+    () => techItems.filter((i) => i.metrics.since === 'weekly').slice(0, 20),
+    [techItems],
+  );
 
   const onRefresh = async () => {
     setLoading(true);
@@ -68,7 +77,7 @@ export default function HomePage() {
   };
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-5xl flex-col gap-6 px-4 py-6">
+    <main className="mx-auto flex max-w-5xl flex-col gap-4 px-4 pt-6 pb-16">
       <header className="flex flex-wrap items-center gap-3">
         <h1 className="text-xl font-semibold tracking-tight">CatchNews</h1>
         <div className="flex flex-wrap gap-2">
@@ -115,21 +124,36 @@ export default function HomePage() {
       {loading && <p className="text-sm text-zinc-500">加载中…</p>}
 
       {!loading && trackTab !== '新闻' && (trackTab === '全部' || trackTab === '娱乐') && (
-        <section className="space-y-3">
+        <section className="space-y-2 last:pb-0">
           <h2 className="text-base font-medium">娱乐热点</h2>
           <HotItemTable items={entertainmentItems} emptyLabel="暂无娱乐热点数据（M1 接入微博/百度）" />
         </section>
       )}
 
       {!loading && trackTab !== '新闻' && (trackTab === '全部' || trackTab === '技术') && (
-        <section className="space-y-3">
+        <section className="space-y-4 last:pb-0">
           <h2 className="text-base font-medium">GitHub Trending</h2>
-          <HotItemTable items={techItems} emptyLabel="暂无 GitHub 数据，请点击刷新或等待采集" />
+          <div className="space-y-2">
+            <h3 className="text-sm text-zinc-400">日榜 · Daily</h3>
+            <HotItemTable
+              items={githubDailyItems}
+              emptyLabel="暂无 GitHub 日榜数据，请点击刷新或等待采集"
+              gainColumnLabel="今日"
+            />
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-sm text-zinc-400">周榜 · Weekly</h3>
+            <HotItemTable
+              items={githubWeeklyItems}
+              emptyLabel="暂无 GitHub 周榜数据，请点击刷新或等待采集"
+              gainColumnLabel="本周"
+            />
+          </div>
         </section>
       )}
 
       {!loading && trackTab === '新闻' && (
-        <section className="space-y-3">
+        <section className="space-y-2 last:pb-0">
           <h2 className="text-base font-medium">综合新闻</h2>
           <p className="py-8 text-center text-sm text-zinc-500">新闻 RSS 将在后续里程碑接入</p>
         </section>

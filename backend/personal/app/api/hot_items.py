@@ -18,7 +18,6 @@ async def get_hot_items(
     include_broken: bool = False,
     db: Session = Depends(get_db),
 ) -> HotItemsResponse:
-    _ = time_range  # today/week aggregation in later milestones
     return list_hot_items(
         db,
         track=track,
@@ -26,4 +25,5 @@ async def get_hot_items(
         top_n=top_n,
         q=q,
         include_broken=include_broken,
+        time_range=time_range,
     )

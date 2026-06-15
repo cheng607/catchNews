@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 TrendingSince = Literal["daily", "weekly", "monthly"]
 
 _REPO_PATH_RE = re.compile(r"^/([^/]+)/([^/#?]+)")
+_STARS_GAINED_RE = re.compile(r"^([\d,]+)\s+stars\s+(today|this week)$", re.IGNORECASE)
 
 
 class GitHubTrendingCollector(BaseCollector):
@@ -47,6 +48,30 @@ class GitHubTrendingCollector(BaseCollector):
                 return value
         return None
 
+    @staticmethod
+    def _parse_description(article: HTMLParser) -> str | None:
+        for paragraph in article.css("p"):
+            text = paragraph.text(strip=True)
+            if text:
+                return text
+        return None
+
+    @staticmethod
+    def _parse_stars_gained(article: HTMLParser, since: TrendingSince) -> int | None:
+        for span in article.css("span.d-inline-block.float-sm-right"):
+            match = _STARS_GAINED_RE.match(span.text(strip=True))
+            if not match:
+                continue
+            value = int(match.group(1).replace(",", ""))
+            period = match.group(2).lower()
+            if since == "daily" and period == "today":
+                return value
+            if since == "weekly" and period == "this week":
+                return value
+            if since == "monthly" and period == "this month":
+                return value
+        return None
+
     def _parse_repo(self, article: HTMLParser, rank: int) -> RawItem | None:
         link = article.css_first("h2 a")
         if link is None:
@@ -72,11 +97,20 @@ class GitHubTrendingCollector(BaseCollector):
                 break
 
         language = self._parse_language(article)
+        description = self._parse_description(article)
+        stars_gained = self._parse_stars_gained(article, self.since)
         metrics: dict[str, int | str] = {"since": self.since}
         if stars is not None:
             metrics["stars"] = stars
         if language:
             metrics["language"] = language
+        if description:
+            metrics["description"] = description
+        if stars_gained is not None:
+            if self.since == "weekly":
+                metrics["stars_this_week"] = stars_gained
+            else:
+                metrics["stars_today"] = stars_gained
 
         return RawItem(
             platform_item_id=f"{owner}/{repo}:{self.since}",
