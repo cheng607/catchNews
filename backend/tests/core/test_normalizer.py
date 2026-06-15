@@ -24,11 +24,18 @@ def _make_raw(
 
 class TestNormalize:
     def test_id_format(self) -> None:
-        schema = normalize(_make_raw(), platform="github", track="tech", source_label="GitHub Trending")
+        schema = normalize(
+            _make_raw(), platform="github", track="tech", source_label="GitHub Trending"
+        )
         assert schema.id == "github:owner/repo:daily"
 
     def test_fields_mapping(self) -> None:
-        raw = _make_raw(title="FastAPI Framework", url="https://github.com/tiangolo/fastapi", rank=3, heat_score=5000.0)
+        raw = _make_raw(
+            title="FastAPI Framework",
+            url="https://github.com/tiangolo/fastapi",
+            rank=3,
+            heat_score=5000.0,
+        )
         schema = normalize(raw, platform="github", track="tech", source_label="GitHub Trending")
 
         assert schema.platform == "github"

@@ -70,10 +70,7 @@ class TestParseRepo:
     def test_parse_empty_html_yields_nothing(self) -> None:
         collector = GitHubTrendingCollector(since="daily")
         tree = HTMLParser(EMPTY_HTML)
-        items = [
-            collector._parse_repo(a, i)
-            for i, a in enumerate(tree.css("article.Box-row"), 1)
-        ]
+        items = [collector._parse_repo(a, i) for i, a in enumerate(tree.css("article.Box-row"), 1)]
         assert items == []
 
 
@@ -119,7 +116,9 @@ class TestFetchMock:
 
     async def test_fetch_normal(self) -> None:
         fake_resp = _FakeResponse(SAMPLE_HTML)
-        with patch("core.collectors.github_trending.httpx.AsyncClient", return_value=_FakeClient(fake_resp)):
+        with patch(
+            "core.collectors.github_trending.httpx.AsyncClient", return_value=_FakeClient(fake_resp)
+        ):
             collector = GitHubTrendingCollector(since="daily")
             items = await collector.fetch()
 
@@ -129,7 +128,9 @@ class TestFetchMock:
 
     async def test_fetch_empty_page(self) -> None:
         fake_resp = _FakeResponse(EMPTY_HTML)
-        with patch("core.collectors.github_trending.httpx.AsyncClient", return_value=_FakeClient(fake_resp)):
+        with patch(
+            "core.collectors.github_trending.httpx.AsyncClient", return_value=_FakeClient(fake_resp)
+        ):
             collector = GitHubTrendingCollector(since="daily")
             items = await collector.fetch()
 
