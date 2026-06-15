@@ -49,5 +49,8 @@ export async function fetchHotItems(params: {
 }
 
 export async function triggerRefresh(): Promise<void> {
-  await fetch(`${API_BASE}/refresh`, { method: 'POST' });
+  const res = await fetch(`${API_BASE}/refresh`, { method: 'POST' });
+  if (!res.ok) {
+    throw new Error(`Refresh failed: ${res.status}`);
+  }
 }

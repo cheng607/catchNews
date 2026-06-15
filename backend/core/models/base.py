@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import JSON, Boolean, DateTime, Integer, Real, Text
+from sqlalchemy import JSON, Boolean, DateTime, Float, Integer, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -18,7 +18,7 @@ class HotItem(Base):
     title: Mapped[str] = mapped_column(Text)
     url: Mapped[str] = mapped_column(Text)
     rank: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    heat_score: Mapped[float | None] = mapped_column(Real, nullable=True)
+    heat_score: Mapped[float | None] = mapped_column(Float, nullable=True)
     metrics: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
     captured_at: Mapped[datetime] = mapped_column(DateTime)
     first_seen_at: Mapped[datetime] = mapped_column(DateTime)
