@@ -132,27 +132,71 @@ mypy backend/core/ backend/personal/
 
 ## 6 Git 规范
 
-### 6.1 分支
+> 详细工作流参见 [开发指南](./开发指南.md) 第 3 章。
 
-| 分支 | 用途 |
+### 6.1 分支策略
+
+| 分支 | 命名示例 | 来源 → 目标 | 说明 |
+|------|----------|-------------|------|
+| `main` | — | — | 稳定可发布版本，仅通过 `dev` 合入 |
+| `dev` | — | `main` → `main` | 日常开发集成，所有功能先合到这里 |
+| `feature/xxx` | `feature/M0-github-collector` | `dev` → `dev` | 功能开发，建议用里程碑编号前缀 |
+| `fix/xxx` | `fix/weibo-parse-error` | `dev` → `dev` | Bug 修复 |
+| `hotfix/xxx` | `hotfix/link-crash` | `main` → `main` + `dev` | 线上紧急修复 |
+
+### 6.2 Commit 消息（中文）
+
+格式：`<类型>: <中文简要描述>`
+
+- **类型**：英文，见下表
+- **中文简要描述**：必填，用中文概括本次变更（一行，50 字以内为宜）
+
+**类型**：
+
+| 类型 | 含义 |
 |------|------|
-| `main` | 稳定版本 |
-| `dev` | 日常开发 |
-| `feature/xxx` | 功能分支 |
-| `fix/xxx` | 修复分支 |
+| `feat` | 新功能 |
+| `fix` | 修复缺陷 |
+| `refactor` | 重构（不改变外部行为） |
+| `docs` | 文档变更 |
+| `test` | 测试相关 |
+| `chore` | 构建/工具/依赖/CI |
+| `style` | 代码格式（不影响逻辑） |
+| `perf` | 性能优化 |
 
-### 6.2 Commit 消息
-
-格式：`<type>(<scope>): <subject>`
-
-**type**：`feat` / `fix` / `refactor` / `docs` / `test` / `chore` / `style`
-**scope**：`collector` / `api` / `model` / `frontend` / `config` / `docker`
+**示例**：
 
 ```
-feat(collector): 实现百度热搜采集器
-fix(api): 修复 hot-items 分页参数缺失
-chore(docker): 优化镜像体积
+feat: 实现百度热搜采集
+fix: 修复 hot-items 分页参数缺失
+test: 添加 GitHub Trending mock 测试
+chore: 优化后端镜像体积
+docs: 补充本地启动说明
 ```
+
+**多行 commit（复杂变更时）**：
+
+```
+feat: 实现 GitHub Trending 页面解析
+
+- 支持 daily / weekly 两个维度
+- 使用 selectolax 解析 HTML，提取 repo 名、语言、Star 数
+- 异常时返回空列表，不阻塞其他采集器
+
+关联: M0 里程碑
+```
+
+### 6.3 Tag 版本号
+
+格式：`v<主版本>.<里程碑>.<补丁>`
+
+| Tag | 时机 |
+|-----|------|
+| `v0.1.0` | M0 完成 |
+| `v0.2.0` | M1 完成 |
+| `v0.3.0` | M2 完成 |
+| `v0.4.0` | M3 完成 |
+| `v1.0.0` | 个人版正式发布 |
 
 ---
 
