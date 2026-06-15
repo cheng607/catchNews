@@ -1,9 +1,9 @@
 """GitHub Star 指标富化模块。
 
-与 GitHubTrendingCollector 配合使用：Trending 采集器获取基础列表，
+与 GitHubTrendingCollector 配合使用: Trending 采集器获取基础列表,
 本模块通过 GitHub REST API 为每个仓库补全 stars / forks / open_issues 精确指标。
 
-本模块不作为独立 Collector 调用，而是由 ingestion 服务层在入库前调用 enrich。
+本模块不作为独立 Collector 调用, 而是由 ingestion 服务层在入库前调用 enrich。
 """
 
 import logging

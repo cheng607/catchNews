@@ -12,7 +12,7 @@ from sqlalchemy.pool import StaticPool
 
 os.environ["DATABASE_URL"] = "sqlite://"
 
-from core.models.base import Base, HotItem, PlatformHealth  # noqa: E402
+from core.models.base import Base, HotItem, PlatformHealth
 
 _engine = create_engine(
     "sqlite://",
@@ -60,9 +60,11 @@ def fixture_client(db_session: Session):
 
     main_mod.app.dependency_overrides[get_db] = _override_db
 
-    with patch.object(main_mod, "run_all_collectors", new_callable=AsyncMock, return_value={}):
-        with TestClient(main_mod.app, raise_server_exceptions=False) as c:
-            yield c
+    with (
+        patch.object(main_mod, "run_all_collectors", new_callable=AsyncMock, return_value={}),
+        TestClient(main_mod.app, raise_server_exceptions=False) as c,
+    ):
+        yield c
 
     main_mod.app.dependency_overrides.clear()
     db_mod.engine = orig_engine

@@ -43,10 +43,10 @@ export function HotItemTable({ items, emptyLabel }: { items: HotItem[]; emptyLab
       <table className="min-w-full text-sm">
         <thead className="bg-zinc-900 text-left text-zinc-400">
           <tr>
-            <th className="px-3 py-2 w-12">#</th>
+            <th className="w-12 px-3 py-2">#</th>
             <th className="px-3 py-2">标题</th>
-            <th className="px-3 py-2 w-28">指标</th>
-            <th className="px-3 py-2 w-16 text-right">变化</th>
+            <th className="w-44 whitespace-nowrap px-3 py-2">指标</th>
+            <th className="w-24 whitespace-nowrap px-3 py-2 text-right">变化</th>
           </tr>
         </thead>
         <tbody>
@@ -59,8 +59,8 @@ export function HotItemTable({ items, emptyLabel }: { items: HotItem[]; emptyLab
                 </a>
                 <div className="mt-0.5 text-xs text-zinc-500">{item.source_label}</div>
               </td>
-              <td className="px-3 py-2 text-zinc-300">{formatMetric(item)}</td>
-              <td className="px-3 py-2 text-right">
+              <td className="whitespace-nowrap px-3 py-2 text-zinc-300">{formatMetric(item)}</td>
+              <td className="whitespace-nowrap px-3 py-2 text-right">
                 <RankBadge change={item.rank_change} />
               </td>
             </tr>
