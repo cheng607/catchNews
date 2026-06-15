@@ -1,0 +1,210 @@
+---
+description: CatchNews 项目全局开发规范 — 技术栈、目录结构、命名与编码约定
+alwaysApply: true
+---
+
+# CatchNews 项目开发规范
+
+## 1 技术栈（锁定）
+
+| 层级 | 技术 | 版本要求 |
+|------|------|----------|
+| 语言 | Python | 3.11+ |
+| Web 框架 | FastAPI | 0.110+ |
+| ORM | SQLAlchemy 2.x | 2.0+ |
+| 数据库 | SQLite（个人版） | 3.x |
+| 任务调度 | APScheduler | 3.10+ |
+| HTTP 客户端 | httpx | 0.27+ |
+| 前端框架 | Next.js (App Router) | 14+ |
+| UI | Tailwind CSS + shadcn/ui | — |
+| 容器化 | Docker + Docker Compose | — |
+
+## 2 目录结构
+
+```
+catchNews/
+├── docs/                        # 产品/需求/开发文档
+│   ├── personal/                # 个人版文档
+│   ├── pro/                     # 产品版文档
+│   └── dev/                     # 开发规范（CONTRIBUTING.md）
+├── backend/
+│   ├── core/                    # 共享核心包（采集器、模型、校验器）
+│   │   ├── collectors/          # 各平台采集器
+│   │   │   ├── base.py          # BaseCollector + RawItem
+│   │   │   ├── github_trending.py
+│   │   │   ├── weibo.py
+│   │   │   └── ...
+│   │   ├── models/base.py       # SQLAlchemy 共享模型
+│   │   ├── schemas/hot_item.py  # Pydantic 共享 schema
+│   │   ├── config.py            # BaseAppSettings
+│   │   ├── normalizer.py        # 统一字段映射
+│   │   └── link_validator.py    # URL 白名单校验
+│   ├── personal/                # 个人版后端（独立可运行）
+│   │   ├── app/
+│   │   │   ├── main.py          # FastAPI 入口
+│   │   │   ├── config.py        # 继承 BaseAppSettings
+│   │   │   ├── database.py      # SQLite 引擎
+│   │   │   ├── api/             # 路由
+│   │   │   ├── services/        # 业务逻辑
+│   │   │   └── scheduler.py     # APScheduler
+│   │   ├── data/                # SQLite（gitignore）
+│   │   ├── cache/               # JSON 快照（gitignore）
+│   │   ├── requirements.txt
+│   │   └── Dockerfile
+│   ├── pro/                     # 产品版后端（后续开发）
+│   │   ├── app/
+│   │   ├── requirements.txt
+│   │   └── Dockerfile
+│   └── tests/                   # 测试（按 core/personal/pro 分目录）
+│       ├── core/
+│       └── personal/
+├── frontend/
+│   ├── shared/                  # 共享 UI 组件
+│   ├── personal/                # 个人版 Next.js 应用
+│   │   ├── app/
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   └── lib/
+│   └── pro/                     # 产品版前端（后续开发）
+├── docker/
+│   ├── personal/docker-compose.yml
+│   └── pro/docker-compose.yml
+├── design/                      # Canvas 设计稿（仅参考）
+├── pyproject.toml               # Python 工具链统一配置
+└── .cursor/rules/               # AI 开发规范
+```
+
+**禁止**在上述约定之外随意新增顶层目录；如需新增，先讨论。
+
+### 2.1 Python 包导入路径
+
+- `core.xxx`：共享核心模块
+- `app.xxx`：各版本自身应用模块
+- Dockerfile 中 `PYTHONPATH=/backend/<edition>:/backend`
+
+## 3 Python 编码规范
+
+### 3.1 格式化与 Lint
+
+- 格式化：**Ruff format**（等价 Black，行宽 100）
+- Lint：**Ruff**，启用规则集见 `pyproject.toml [tool.ruff]`
+- 类型检查：**mypy strict**（增量执行，不阻塞 CI 但须持续修复）
+
+### 3.2 命名
+
+| 对象 | 风格 | 示例 |
+|------|------|------|
+| 模块/文件 | snake_case | `github_trending.py` |
+| 类 | PascalCase | `GitHubTrendingCollector` |
+| 函数/方法 | snake_case | `async def fetch()` |
+| 常量 | UPPER_SNAKE | `ALLOWED_HOSTS` |
+| Pydantic Schema | PascalCase + `Schema` 后缀 | `HotItemSchema` |
+| SQLAlchemy 模型 | PascalCase（无后缀） | `HotItem` |
+| 数据库表名 | snake_case 复数 | `hot_items` |
+
+### 3.3 类型标注
+
+- 所有公开函数必须有完整参数与返回值类型标注
+- 使用 `X | None` 而非 `Optional[X]`（Python 3.10+ 语法）
+- 集合类型使用小写泛型：`list[str]`、`dict[str, Any]`
+
+### 3.4 异步
+
+- 采集器 (`collectors/`) 和 HTTP 调用一律使用 `async/await`
+- 数据库操作在当前阶段可用同步 Session（SQLite 限制），后续迁移再转异步
+
+### 3.5 导入排序
+
+由 Ruff `isort` 规则自动处理，分组顺序：标准库 → 第三方 → 本地。
+
+### 3.6 错误处理
+
+- 采集器 `fetch()` 内部捕获异常，不向外抛出未处理异常
+- 单平台失败不阻塞其他平台调度
+- 所有异常必须写入结构化日志（`platform`、`duration`、`error`）
+
+## 4 前端编码规范
+
+### 4.1 格式化与 Lint
+
+- **ESLint**：Next.js 内置 + `@typescript-eslint`
+- **Prettier**：行宽 100，单引号，尾逗号 `all`，分号
+- 统一使用 **TypeScript**（严格模式 `strict: true`）
+
+### 4.2 命名
+
+| 对象 | 风格 | 示例 |
+|------|------|------|
+| 组件文件 | PascalCase.tsx | `HotItemRow.tsx` |
+| 工具/hooks 文件 | camelCase.ts | `useHotItems.ts` |
+| 组件 | PascalCase | `HotItemRow` |
+| hooks | camelCase，use 前缀 | `useHotItems` |
+| 常量 | UPPER_SNAKE | `API_BASE_URL` |
+| CSS 类 | Tailwind utility（不写自定义 class，除非封装组件） | — |
+
+### 4.3 组件规范
+
+- 使用函数组件 + Hooks，禁止 class 组件
+- Props 用 `interface` 定义，命名 `XxxProps`
+- 页面组件放 `app/` 目录，可复用组件放 `components/`
+
+## 5 Git 规范
+
+### 5.1 分支策略
+
+| 分支 | 用途 |
+|------|------|
+| `main` | 稳定版本，可随时部署 |
+| `dev` | 日常开发集成 |
+| `feature/xxx` | 功能分支，从 dev 拉出 |
+| `fix/xxx` | 修复分支 |
+
+### 5.2 Commit 消息
+
+格式：`<type>(<scope>): <subject>`
+
+type 可选值：
+- `feat` — 新功能
+- `fix` — 修复
+- `refactor` — 重构
+- `docs` — 文档
+- `test` — 测试
+- `chore` — 构建/工具/依赖
+- `style` — 格式（不影响逻辑）
+
+scope 可选值：`collector`、`api`、`model`、`frontend`、`config`、`docker`
+
+示例：
+```
+feat(collector): 实现百度热搜采集器
+fix(api): 修复 hot-items 分页参数缺失
+chore(docker): 优化 backend 镜像体积
+```
+
+### 5.3 .gitignore 要点
+
+- 环境文件 `.env` / `.env.local` 不入库
+- `backend/personal/data/*.db` 运行时数据不入库
+- `backend/personal/cache/*.json` 运行时缓存不入库
+- `node_modules/`、`.next/`、`__pycache__/` 不入库
+
+## 6 API 设计规范
+
+- 前缀统一 `/api/v1`
+- RESTful 风格，资源名用复数 kebab-case：`/hot-items`、`/weekly-summary`
+- 查询参数用 snake_case：`time_range`、`top_n`
+- 响应统一结构：`{ items: [...], meta: {...} }`
+- 错误响应：`{ detail: "..." }`（FastAPI 默认）
+
+## 7 测试规范
+
+- 后端测试放 `backend/tests/`，使用 **pytest** + **pytest-asyncio**
+- 测试文件命名 `test_<module>.py`
+- 采集器测试必须 mock 外部 HTTP，禁止测试中发真实请求
+- 前端测试使用 **Jest** + **React Testing Library**
+
+## 8 配置管理
+
+- 所有可配置项通过 `.env` 文件注入，不硬编码
+- 提供 `.env.example` 作为模板，包含注释说明
+- 使用 `pydantic-settings` 管理后端配置，类型安全

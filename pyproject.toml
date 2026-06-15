@@ -1,0 +1,48 @@
+[project]
+name = "catchnews"
+version = "0.1.0"
+description = "多维度热点速览台 — 聚合娱乐、技术、新闻多源榜单"
+requires-python = ">=3.11"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+src = ["backend/core", "backend/personal", "backend/pro"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "N",    # pep8-naming
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "A",    # flake8-builtins
+    "SIM",  # flake8-simplify
+    "T20",  # flake8-print (禁止 print，使用 logging)
+    "RUF",  # ruff 专有规则
+]
+ignore = [
+    "E501",   # 行长由 formatter 处理
+    "B008",   # FastAPI Depends() 在默认参数中是惯用写法
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["core", "app"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests"]
+asyncio_mode = "auto"

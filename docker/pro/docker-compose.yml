@@ -1,0 +1,31 @@
+# CatchNews Pro — Docker Compose (placeholder)
+services:
+  backend:
+    build:
+      context: ../../backend
+      dockerfile: pro/Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+
+  postgres:
+    image: timescale/timescaledb:latest-pg16
+    environment:
+      POSTGRES_USER: catchnews
+      POSTGRES_PASSWORD: catchnews
+      POSTGRES_DB: catchnews
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  pgdata:
