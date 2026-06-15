@@ -73,20 +73,22 @@ def fixture_client(db_session: Session):
 def _seed_github_items(db: Session, count: int = 3) -> None:
     now = datetime.now(tz=UTC)
     for i in range(1, count + 1):
-        db.add(HotItem(
-            id=f"github:owner/repo-{i}:daily",
-            platform="github",
-            track="tech",
-            title=f"awesome-lib-{i}",
-            url=f"https://github.com/owner/repo-{i}",
-            rank=i,
-            heat_score=float(1000 * i),
-            metrics={"stars": 1000 * i, "language": "Python", "since": "daily"},
-            captured_at=now,
-            first_seen_at=now,
-            link_status="ok",
-            is_active=True,
-        ))
+        db.add(
+            HotItem(
+                id=f"github:owner/repo-{i}:daily",
+                platform="github",
+                track="tech",
+                title=f"awesome-lib-{i}",
+                url=f"https://github.com/owner/repo-{i}",
+                rank=i,
+                heat_score=float(1000 * i),
+                metrics={"stars": 1000 * i, "language": "Python", "since": "daily"},
+                captured_at=now,
+                first_seen_at=now,
+                link_status="ok",
+                is_active=True,
+            )
+        )
     db.add(PlatformHealth(platform="github", last_success_at=now, status="ok"))
     db.commit()
 
